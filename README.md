@@ -2,6 +2,13 @@
 
 Modern, accessible SVG chord diagram generator for any stringed instrument. Zero dependencies, ~6KB gzipped.
 
+## Packages
+
+| Package | Description | Install |
+|---------|-------------|---------|
+| [`chordkit`](./packages/chordkit) | Core library — SVG rendering, themes, export, editor | `npm install chordkit` |
+| [`@chordkit/dictionary`](./packages/dictionary) | Pre-built chord definitions for guitar, ukulele, and more | `npm install @chordkit/dictionary` |
+
 ## Features
 
 - **Zero dependencies** — pure SVG string generation, no DOM library required
@@ -19,13 +26,11 @@ Modern, accessible SVG chord diagram generator for any stringed instrument. Zero
 - **Tiny** — ~6KB gzipped with all features, tree-shakeable
 - **TypeScript** — full type definitions included
 
-## Install
+## Quick Start
 
 ```bash
 npm install chordkit
 ```
-
-## Quick Start
 
 ### Static SVG string (SSR / Node.js)
 
@@ -68,7 +73,7 @@ new ChordChart('#my-container')
   .draw()
 ```
 
-### With optional chord dictionary
+### With the chord dictionary
 
 ```bash
 npm install @chordkit/dictionary
@@ -76,9 +81,14 @@ npm install @chordkit/dictionary
 
 ```typescript
 import { ChordChart } from 'chordkit'
-import { guitar } from '@chordkit/dictionary'
+import { guitar, ukulele } from '@chordkit/dictionary'
 
 const svg = ChordChart.svg({ chord: guitar.Am, theme: 'dark' })
+
+const svg2 = ChordChart.svg({
+  chord: ukulele.C,
+  instrument: 'ukulele',
+})
 ```
 
 ## Instruments
@@ -282,6 +292,56 @@ const chord = editor.getChord()
 editor.clear()
 ```
 
+## Chord dictionary
+
+The optional `@chordkit/dictionary` package provides ready-to-use chord definitions so you don't have to define them manually.
+
+```bash
+npm install @chordkit/dictionary
+```
+
+### Available chords
+
+#### Guitar
+
+| Major | Minor | 7th |
+|-------|-------|-----|
+| C | Dm | C7 |
+| D | Em | D7 |
+| E | Am | E7 |
+| F | Bm | G7 |
+| G | | A7 |
+| A | | Am7 |
+| B | | Dm7 |
+| | | Em7 |
+
+#### Ukulele
+
+| Major | Minor |
+|-------|-------|
+| C | Cm |
+| D | Dm |
+| E | Em |
+| F | Gm |
+| G | Am |
+| A | Bm |
+| B | |
+
+### Chord structure
+
+Each chord follows the `ChordDiagram` type:
+
+```typescript
+interface ChordDiagram {
+  name?: string
+  fingers: { string: number; fret: number; text?: string }[]
+  barres?: { fret: number; fromString: number; toString: number }[]
+  muted?: number[]
+  open?: number[]
+  position?: number
+}
+```
+
 ## Accessibility
 
 Every generated SVG includes:
@@ -291,6 +351,23 @@ Every generated SVG includes:
 - `<desc>` with a full textual description of the chord
 - `aria-label` on muted/open string indicators
 - WCAG 2.1 AA compliant contrast in built-in themes
+
+## Contributing
+
+```bash
+# Clone the repo
+git clone https://github.com/juliocarneiro/chordkit.git
+cd chordkit
+
+# Install dependencies
+npm install
+
+# Build all packages
+npm run build
+
+# Run tests
+npm test
+```
 
 ## License
 
