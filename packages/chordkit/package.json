@@ -37,5 +37,14 @@
     "a11y"
   ],
   "license": "MIT",
+  "author": "Julio Carneiro",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/juliocarneiro/chordkit"
+  },
+  "homepage": "https://github.com/juliocarneiro/chordkit#readme",
+  "bugs": {
+    "url": "https://github.com/juliocarneiro/chordkit/issues"
+  },
   "sideEffects": false
 }

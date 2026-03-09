@@ -33,6 +33,16 @@
     "chordkit"
   ],
   "license": "MIT",
+  "author": "Julio Carneiro",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/juliocarneiro/chordkit",
+    "directory": "packages/dictionary"
+  },
+  "homepage": "https://github.com/juliocarneiro/chordkit#readme",
+  "bugs": {
+    "url": "https://github.com/juliocarneiro/chordkit/issues"
+  },
   "peerDependencies": {
     "chordkit": "^1.0.0"
   },
