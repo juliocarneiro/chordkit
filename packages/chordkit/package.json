@@ -1,0 +1,41 @@
+{
+  "name": "chordkit",
+  "version": "1.0.0",
+  "description": "Modern, accessible SVG chord diagram generator for any stringed instrument",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "chord",
+    "guitar",
+    "ukulele",
+    "svg",
+    "diagram",
+    "music",
+    "accessible",
+    "a11y"
+  ],
+  "license": "MIT",
+  "sideEffects": false
+}
