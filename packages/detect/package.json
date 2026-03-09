@@ -1,0 +1,40 @@
+{
+  "name": "@chordkit/detect",
+  "version": "1.0.0",
+  "description": "Chord detection from MIDI notes, audio frequencies, or note names — with inversion and confidence scoring",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "clean": "rm -rf dist"
+  },
+  "keywords": ["chord", "detect", "midi", "audio", "frequency", "music", "chordkit"],
+  "license": "MIT",
+  "author": "Julio Carneiro",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/juliocarneiro/chordkit",
+    "directory": "packages/detect"
+  },
+  "homepage": "https://github.com/juliocarneiro/chordkit#readme",
+  "bugs": {
+    "url": "https://github.com/juliocarneiro/chordkit/issues"
+  },
+  "sideEffects": false
+}

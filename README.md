@@ -8,6 +8,10 @@ Modern, accessible SVG chord diagram generator for any stringed instrument. Zero
 |---------|-------------|---------|
 | [`chordkit`](./packages/chordkit) | Core library — SVG rendering, themes, export, editor | `npm install chordkit` |
 | [`@chordkit/dictionary`](./packages/dictionary) | Pre-built chord definitions for guitar, ukulele, and more | `npm install @chordkit/dictionary` |
+| [`@chordkit/theory`](./packages/theory) | Music theory utilities — transpose, scales, chord identification | `npm install @chordkit/theory` |
+| [`@chordkit/parser`](./packages/parser) | Parse chord names and chord sheets with embedded chords | `npm install @chordkit/parser` |
+| [`@chordkit/react`](./packages/react) | React components and hooks — ChordChart, ChordEditor, ChordProgression | `npm install @chordkit/react` |
+| [`@chordkit/detect`](./packages/detect) | Chord detection from note names, MIDI numbers, or audio frequencies | `npm install @chordkit/detect` |
 
 ## Features
 
@@ -351,6 +355,330 @@ Every generated SVG includes:
 - `<desc>` with a full textual description of the chord
 - `aria-label` on muted/open string indicators
 - WCAG 2.1 AA compliant contrast in built-in themes
+
+## Music theory
+
+The optional `@chordkit/theory` package provides utilities for transposing chords, building scales, identifying chords from notes, and more.
+
+```bash
+npm install @chordkit/theory
+```
+
+### Transpose a chord
+
+```typescript
+import { transpose } from '@chordkit/theory'
+import { guitar } from '@chordkit/dictionary'
+
+const Bm = transpose(guitar.Am, 2)            // Am → Bm (2 semitones up)
+const Gm = transpose(guitar.Am, -2)           // Am → Gm (2 semitones down)
+const FSharpm = transpose(guitar.Em, 2, 'guitar') // Em → F#m
+```
+
+### Scales
+
+```typescript
+import { getScale } from '@chordkit/theory'
+
+getScale('A', 'minor')          // ['A', 'B', 'C', 'D', 'E', 'F', 'G']
+getScale('C', 'major')          // ['C', 'D', 'E', 'F', 'G', 'A', 'B']
+getScale('E', 'pentatonicMinor') // ['E', 'G', 'A', 'B', 'D']
+getScale('Bb', 'blues')         // ['Bb', 'Db', 'Eb', 'E', 'F', 'Ab']
+```
+
+Available scale types: `major`, `minor`, `harmonicMinor`, `melodicMinor`, `pentatonicMajor`, `pentatonicMinor`, `blues`, `dorian`, `phrygian`, `lydian`, `mixolydian`, `locrian`.
+
+### Diatonic chords
+
+```typescript
+import { getDiatonicChords } from '@chordkit/theory'
+
+getDiatonicChords('G', 'major')
+// [
+//   { degree: 'I',   name: 'G',   quality: 'major'     },
+//   { degree: 'II',  name: 'Am',  quality: 'minor'     },
+//   { degree: 'III', name: 'Bm',  quality: 'minor'     },
+//   { degree: 'IV',  name: 'C',   quality: 'major'     },
+//   { degree: 'V',   name: 'D',   quality: 'major'     },
+//   { degree: 'VI',  name: 'Em',  quality: 'minor'     },
+//   { degree: 'VII', name: 'F#dim', quality: 'diminished' },
+// ]
+```
+
+### Chord identification
+
+```typescript
+import { identifyChord } from '@chordkit/theory'
+
+identifyChord(['C', 'E', 'G'])        // 'C'
+identifyChord(['A', 'C', 'E'])        // 'Am'
+identifyChord(['B', 'D', 'F'])        // 'Bdim'
+identifyChord(['G', 'B', 'D', 'F'])   // 'G7'
+```
+
+### Other utilities
+
+```typescript
+import { enharmonic, semitonesBetween, transposeNote, circleOfFifths } from '@chordkit/theory'
+
+enharmonic('C#')             // 'Db'
+enharmonic('Gb')             // 'F#'
+semitonesBetween('A', 'C')   // 3
+transposeNote('E', 5)        // 'A'
+circleOfFifths()             // ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'Db', 'Ab', 'Eb', 'Bb', 'F']
+```
+
+---
+
+## Chord sheet parser
+
+The optional `@chordkit/parser` package parses chord names and chord sheets (lyrics with embedded chords).
+
+```bash
+npm install @chordkit/parser
+```
+
+### Parse a chord name
+
+```typescript
+import { parseChordName } from '@chordkit/parser'
+
+parseChordName('Am7')
+// { raw: 'Am7', root: 'A', quality: 'minor', extensions: ['7'], bass: undefined }
+
+parseChordName('C#maj7')
+// { raw: 'C#maj7', root: 'C#', quality: 'major', extensions: ['maj7'] }
+
+parseChordName('G/B')
+// { raw: 'G/B', root: 'G', quality: 'major', extensions: [], bass: 'B' }
+```
+
+### Validate and format
+
+```typescript
+import { isValidChordName, formatChordName, parseChordName } from '@chordkit/parser'
+
+isValidChordName('Am7')   // true
+isValidChordName('hello') // false
+
+const parsed = parseChordName('Dm7')!
+formatChordName(parsed)   // 'Dm7'
+```
+
+### Parse a chord line
+
+```typescript
+import { parseLine } from '@chordkit/parser'
+
+parseLine('Am  F  C  G')       // ['Am', 'F', 'C', 'G']
+parseLine('Intro: Am F C G')   // ['Am', 'F', 'C', 'G']
+```
+
+### Parse a chord sheet
+
+Parses lyrics with chords wrapped in square brackets `[ChordName]`.
+
+```typescript
+import { parseChordSheet } from '@chordkit/parser'
+
+const lines = parseChordSheet('[Am]Yesterday [F]all my [C]troubles')
+
+// lines[0].segments:
+// [
+//   { chord: { root: 'A', quality: 'minor', ... }, text: 'Yesterday ' },
+//   { chord: { root: 'F', quality: 'major', ... }, text: 'all my ' },
+//   { chord: { root: 'C', quality: 'major', ... }, text: 'troubles' },
+// ]
+
+// Multi-line example
+const sheet = parseChordSheet(`
+[Am]Yesterday [F]all my [C]troubles [G]seemed so far away
+[Am]Now it [F]looks as [C]though they're [G]here to stay
+`)
+```
+
+---
+
+## React
+
+The optional `@chordkit/react` package provides React components and hooks.
+
+```bash
+npm install @chordkit/react
+```
+
+### ChordChart component
+
+```tsx
+import { ChordChart } from '@chordkit/react'
+import { guitar } from '@chordkit/dictionary'
+
+function App() {
+  return (
+    <ChordChart
+      chord={guitar.Am}
+      theme="dark"
+      width={260}
+    />
+  )
+}
+```
+
+Accepts all [`ChordChartOptions`](#options) plus `className` and `style`.
+
+### ChordProgression component
+
+```tsx
+import { ChordProgression } from '@chordkit/react'
+import { guitar } from '@chordkit/dictionary'
+
+function App() {
+  return (
+    <ChordProgression
+      chords={[guitar.Am, guitar.F, guitar.C, guitar.G]}
+      instrument="guitar"
+      theme="dark"
+      title="Verse"
+    />
+  )
+}
+```
+
+### ChordEditor component
+
+Interactive editor — click to place/remove fingers. Browser-only; renders an empty div during SSR.
+
+```tsx
+import { ChordEditor } from '@chordkit/react'
+
+function App() {
+  return (
+    <ChordEditor
+      instrument="guitar"
+      theme="light"
+      onChange={(chord) => console.log(chord)}
+    />
+  )
+}
+```
+
+### useChordEditor hook
+
+For full control over the editor instance.
+
+```tsx
+import { useChordEditor } from '@chordkit/react'
+import { guitar } from '@chordkit/dictionary'
+
+function MyEditor() {
+  const { ref, chord, setChord, clear } = useChordEditor({
+    instrument: 'guitar',
+    theme: 'dark',
+    onChange: (c) => console.log('changed', c),
+  })
+
+  return (
+    <div>
+      <div ref={ref} />
+      <button onClick={() => setChord(guitar.Am)}>Load Am</button>
+      <button onClick={clear}>Clear</button>
+      {chord && <pre>{JSON.stringify(chord, null, 2)}</pre>}
+    </div>
+  )
+}
+```
+
+---
+
+## Chord detection
+
+The optional `@chordkit/detect` package identifies chords from note names, MIDI note numbers, or audio frequencies. Unlike the basic `identifyChord` in `@chordkit/theory`, it handles inversions, extended chords (7th, 9th, maj7…), and returns multiple ranked candidates with confidence scores.
+
+```bash
+npm install @chordkit/detect
+```
+
+### Detect from note names
+
+```typescript
+import { detectChord } from '@chordkit/detect'
+
+detectChord(['A', 'C', 'E'])
+// [{ name: 'Am', root: 'A', quality: 'minor', inversion: 0, score: 1, matchedNotes: ['A','C','E'] }]
+
+detectChord(['C', 'E', 'G', 'B'])
+// [{ name: 'Cmaj7', score: 1 }, { name: 'Em', score: 0.75 }, ...]
+
+// Flat notation
+detectChord(['Bb', 'D', 'F'], { style: 'flat' })
+// [{ name: 'Bb', root: 'Bb', quality: 'major', score: 1 }]
+```
+
+### Detect from MIDI note numbers
+
+```typescript
+import { detectChordFromMidi } from '@chordkit/detect'
+
+detectChordFromMidi([57, 60, 64])   // A3, C4, E4 → Am
+detectChordFromMidi([60, 64, 67])   // C4, E4, G4 → C
+detectChordFromMidi([64, 67, 71, 74]) // E4, G4, B4, D5 → Em7
+```
+
+### Detect from audio frequencies (Hz)
+
+Each frequency is snapped to the nearest MIDI semitone before matching.
+
+```typescript
+import { detectChordFromFrequencies } from '@chordkit/detect'
+
+// A3 (220 Hz), C4 (261.63 Hz), E4 (329.63 Hz)
+detectChordFromFrequencies([220, 261.63, 329.63])
+// [{ name: 'Am', score: 1, inversion: 0 }]
+```
+
+### MIDI and frequency utilities
+
+```typescript
+import { midiToNote, noteToMidi, frequencyToNote, centDeviation } from '@chordkit/detect'
+
+midiToNote(60)           // { midi: 60, name: 'C', octave: 4, frequency: 261.63 }
+midiToNote(69)           // { midi: 69, name: 'A', octave: 4, frequency: 440.00 }
+midiToNote(70, 'flat')   // { midi: 70, name: 'Bb', octave: 4, frequency: 466.16 }
+
+noteToMidi('A', 4)       // 69
+noteToMidi('C', 4)       // 60
+
+frequencyToNote(440)     // { midi: 69, name: 'A', octave: 4, frequency: 440 }
+frequencyToNote(432)     // snaps to nearest semitone → A4
+
+centDeviation(445)       // +19 cents (sharp)
+centDeviation(435)       // -19 cents (flat)
+```
+
+### ChordCandidate type
+
+```typescript
+interface ChordCandidate {
+  name: string          // "Am7"
+  root: string          // "A"
+  quality: ChordQuality // "minor7"
+  inversion: number     // 0 = root, 1 = 1st inversion, 2 = 2nd, 3 = 3rd
+  score: number         // 0–1, higher = more confident
+  matchedNotes: string[] // notes from the input that matched the pattern
+}
+```
+
+### Options
+
+```typescript
+detectChord(notes, {
+  style: 'flat',       // accidental preference for names (default: 'sharp')
+  maxCandidates: 3,    // max results returned (default: 5)
+  minScore: 0.5,       // minimum confidence threshold (default: 0.4)
+})
+```
+
+---
 
 ## Contributing
 
