@@ -34,47 +34,38 @@ export interface ChordSheetLine {
  */
 export function parseChordSheet(text: string): ChordSheetLine[] {
   const lines = text.split(/\r?\n/)
-  return lines.map((line) => ({ segments: parseLine(line) }))
+  return lines.map((line) => ({ segments: parseLineSegments(line) }))
 }
 
-function parseLine(line: string): ChordSheetSegment[] {
-  const segments: ChordSheetSegment[] = []
+function parseLineSegments(line: string): ChordSheetSegment[] {
   const chordPattern = /\[([^\]]+)\]/g
+  const segments: ChordSheetSegment[] = []
 
-  let lastIndex = 0
-  let match: RegExpExecArray | null
+  // Collect all matches first to avoid mutating lastIndex mid-loop
+  const matches: Array<{ chordName: string; start: number; end: number }> = []
+  let m: RegExpExecArray | null
+  while ((m = chordPattern.exec(line)) !== null) {
+    matches.push({ chordName: m[1], start: m.index, end: chordPattern.lastIndex })
+  }
 
-  while ((match = chordPattern.exec(line)) !== null) {
-    const chordName = match[1]
-    const chordStart = match.index
-    const chordEnd = chordPattern.lastIndex
+  if (matches.length === 0) {
+    return [{ text: line }]
+  }
 
-    if (chordStart > lastIndex) {
-      segments.push({ text: line.slice(lastIndex, chordStart) })
-    }
+  // Text before the first chord marker
+  if (matches[0].start > 0) {
+    segments.push({ text: line.slice(0, matches[0].start) })
+  }
 
-    const nextMatch = chordPattern.exec(line)
-    const textEnd = nextMatch ? nextMatch.index : line.length
-
-    if (nextMatch) {
-      chordPattern.lastIndex = nextMatch.index
-    }
+  for (let i = 0; i < matches.length; i++) {
+    const { chordName, end } = matches[i]
+    const textEnd = i + 1 < matches.length ? matches[i + 1].start : line.length
 
     const parsed = parseChordName(chordName)
     segments.push({
       chord: parsed ?? undefined,
-      text: line.slice(chordEnd, textEnd),
+      text: line.slice(end, textEnd),
     })
-
-    lastIndex = textEnd
-  }
-
-  if (lastIndex < line.length) {
-    segments.push({ text: line.slice(lastIndex) })
-  }
-
-  if (segments.length === 0) {
-    segments.push({ text: line })
   }
 
   return segments

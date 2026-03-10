@@ -1,6 +1,6 @@
 {
   "name": "@chordkit/parser",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "Parse chord names and chord sheets (lyrics with embedded chords) for chordkit",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

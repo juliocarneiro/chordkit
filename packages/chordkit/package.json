@@ -1,6 +1,6 @@
 {
   "name": "chordkit",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Modern, accessible SVG chord diagram generator for any stringed instrument",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

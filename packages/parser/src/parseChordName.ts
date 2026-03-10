@@ -25,13 +25,14 @@ const ROOT_PATTERN = /^([A-G][#b]?)/
 const BASS_PATTERN = /\/([A-G][#b]?)$/
 
 const QUALITY_TOKENS: Array<{ pattern: RegExp; quality: ChordQuality }> = [
-  { pattern: /^(min|minor|m(?![a-z]))/,  quality: 'minor' },
-  { pattern: /^(maj|major|M(?![a-z]))/, quality: 'major' },
-  { pattern: /^(dim|°)/,                quality: 'diminished' },
-  { pattern: /^(aug|\+)/,               quality: 'augmented' },
-  { pattern: /^sus2/,                   quality: 'suspended2' },
-  { pattern: /^sus4?/,                  quality: 'suspended4' },
-  { pattern: /^5/,                      quality: 'power' },
+  { pattern: /^(min|minor|m(?![a-z]))/,      quality: 'minor' },
+  // maj must NOT consume when immediately followed by a digit (e.g. maj7, maj9)
+  { pattern: /^(maj(?!\d)|major(?!\d)|M(?![a-z]))/, quality: 'major' },
+  { pattern: /^(dim|°)/,                     quality: 'diminished' },
+  { pattern: /^(aug|\+)/,                    quality: 'augmented' },
+  { pattern: /^sus2/,                        quality: 'suspended2' },
+  { pattern: /^sus4?/,                       quality: 'suspended4' },
+  { pattern: /^5/,                           quality: 'power' },
 ]
 
 const EXTENSION_TOKENS = /^(maj7|maj9|maj11|maj13|11|13|add9|add11|add13|[679])/
