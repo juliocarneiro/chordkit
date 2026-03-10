@@ -142,6 +142,16 @@ The `score` starts at 1 for a perfect match and is reduced by ~0.08 for each ext
 | Major 9th | Cmaj9 | 0-4-7-11-2 |
 | Minor 9th | Am9 | 0-3-7-10-2 |
 
+## Related packages
+
+| Package | Description |
+|---------|-------------|
+| [`chordkit`](../chordkit) | Core library — SVG rendering, themes, export, interactive editor |
+| [`@chordkit/dictionary`](../dictionary) | Pre-built chord definitions for guitar, ukulele, and more |
+| [`@chordkit/theory`](../theory) | Transpose chords, build scales, identify chords from notes |
+| [`@chordkit/parser`](../parser) | Parse chord names and chord sheets with embedded `[Am]` markers |
+| [`@chordkit/react`](../react) | React components — `<ChordChart>`, `<ChordEditor>`, `<ChordProgression>` |
+
 ## License
 
 MIT

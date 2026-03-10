@@ -1,6 +1,6 @@
 {
   "name": "@chordkit/react",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "React components and hooks for chordkit — ChordChart, ChordProgression, ChordEditor",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -18,7 +18,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "build": "tsup",

@@ -116,6 +116,16 @@ Returns an array of 7 `DiatonicChord` objects `{ degree, name, quality }`.
 
 Returns the chord name string or `null` if no match is found.
 
+## Related packages
+
+| Package | Description |
+|---------|-------------|
+| [`chordkit`](../chordkit) | Core library — SVG rendering, themes, export, interactive editor |
+| [`@chordkit/dictionary`](../dictionary) | Pre-built chord definitions for guitar, ukulele, and more |
+| [`@chordkit/parser`](../parser) | Parse chord names and chord sheets with embedded `[Am]` markers |
+| [`@chordkit/detect`](../detect) | Chord detection from MIDI numbers, frequencies, or note names |
+| [`@chordkit/react`](../react) | React components — `<ChordChart>`, `<ChordEditor>`, `<ChordProgression>` |
+
 ## License
 
 MIT

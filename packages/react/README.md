@@ -147,6 +147,16 @@ function MyEditor() {
 
 `ChordEditor` and `useChordEditor` initialize the interactive layer only in the browser (`typeof window !== 'undefined'`). During SSR they render an empty `<div>` without errors.
 
+## Related packages
+
+| Package | Description |
+|---------|-------------|
+| [`chordkit`](../chordkit) | Core library — SVG rendering, themes, export, interactive editor |
+| [`@chordkit/dictionary`](../dictionary) | Pre-built chord definitions for guitar, ukulele, and more |
+| [`@chordkit/theory`](../theory) | Transpose chords, build scales, identify chords from notes |
+| [`@chordkit/parser`](../parser) | Parse chord names and chord sheets with embedded `[Am]` markers |
+| [`@chordkit/detect`](../detect) | Chord detection from MIDI numbers, frequencies, or note names |
+
 ## License
 
 MIT

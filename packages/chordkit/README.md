@@ -292,6 +292,16 @@ Every generated SVG includes:
 - `aria-label` on muted/open string indicators
 - WCAG 2.1 AA compliant contrast in built-in themes
 
+## Related packages
+
+| Package | Description |
+|---------|-------------|
+| [`@chordkit/dictionary`](../dictionary) | Pre-built chord definitions for guitar, ukulele, and more |
+| [`@chordkit/theory`](../theory) | Transpose chords, build scales, identify chords from notes |
+| [`@chordkit/parser`](../parser) | Parse chord names and chord sheets with embedded `[Am]` markers |
+| [`@chordkit/react`](../react) | React components — `<ChordChart>`, `<ChordEditor>`, `<ChordProgression>` |
+| [`@chordkit/detect`](../detect) | Chord detection from note names, MIDI numbers, or audio frequencies |
+
 ## License
 
 MIT

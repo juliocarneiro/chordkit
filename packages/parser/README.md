@@ -157,6 +157,16 @@ Returns the chord name string reconstructed from a `ParsedChord`.
 
 Returns `boolean`.
 
+## Related packages
+
+| Package | Description |
+|---------|-------------|
+| [`chordkit`](../chordkit) | Core library — SVG rendering, themes, export, interactive editor |
+| [`@chordkit/dictionary`](../dictionary) | Pre-built chord definitions for guitar, ukulele, and more |
+| [`@chordkit/theory`](../theory) | Transpose chords, build scales, identify chords from notes |
+| [`@chordkit/detect`](../detect) | Chord detection from MIDI numbers, frequencies, or note names |
+| [`@chordkit/react`](../react) | React components — `<ChordChart>`, `<ChordEditor>`, `<ChordProgression>` |
+
 ## License
 
 MIT

@@ -95,6 +95,16 @@ ChordProgression.svg({
 ChordChart.svg({ chord: guitar.E, leftHanded: true })
 ```
 
+## Related packages
+
+| Package | Description |
+|---------|-------------|
+| [`chordkit`](../chordkit) | Core library — SVG rendering, themes, export, interactive editor |
+| [`@chordkit/theory`](../theory) | Transpose chords, build scales, identify chords from notes |
+| [`@chordkit/parser`](../parser) | Parse chord names and chord sheets with embedded `[Am]` markers |
+| [`@chordkit/detect`](../detect) | Chord detection from MIDI numbers, frequencies, or note names |
+| [`@chordkit/react`](../react) | React components — `<ChordChart>`, `<ChordEditor>`, `<ChordProgression>` |
+
 ## License
 
 MIT

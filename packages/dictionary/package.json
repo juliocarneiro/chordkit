@@ -1,6 +1,6 @@
 {
   "name": "@chordkit/dictionary",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Pre-built chord definitions for chordkit (guitar, ukulele, and more)",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -18,7 +18,8 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "scripts": {
     "build": "tsup",

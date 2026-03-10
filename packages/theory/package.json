@@ -1,6 +1,6 @@
 {
   "name": "@chordkit/theory",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Music theory utilities for chordkit — transpose, scales, chord identification, and more",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -17,7 +17,7 @@
       }
     }
   },
-  "files": ["dist"],
+  "files": ["dist", "README.md"],
   "scripts": {
     "build": "tsup",
     "test": "vitest run",

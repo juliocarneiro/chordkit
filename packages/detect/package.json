@@ -1,6 +1,6 @@
 {
   "name": "@chordkit/detect",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Chord detection from MIDI notes, audio frequencies, or note names — with inversion and confidence scoring",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -17,7 +17,7 @@
       }
     }
   },
-  "files": ["dist"],
+  "files": ["dist", "README.md"],
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
