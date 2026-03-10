@@ -19,18 +19,36 @@ jobs:
 
       - run: npm ci
 
-      - run: npm run build --workspace=packages/chordkit
+      - run: npm run build
 
-      - run: npm test --workspace=packages/chordkit
+      - run: npm test
 
       - name: Publish chordkit
         run: npm publish --workspace=packages/chordkit
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - run: npm run build --workspace=packages/dictionary
-
       - name: Publish @chordkit/dictionary
         run: npm publish --workspace=packages/dictionary --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish @chordkit/theory
+        run: npm publish --workspace=packages/theory --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish @chordkit/parser
+        run: npm publish --workspace=packages/parser --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish @chordkit/react
+        run: npm publish --workspace=packages/react --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish @chordkit/detect
+        run: npm publish --workspace=packages/detect --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
