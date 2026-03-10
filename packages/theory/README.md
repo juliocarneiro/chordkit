@@ -120,11 +120,11 @@ Returns the chord name string or `null` if no match is found.
 
 | Package | Description |
 |---------|-------------|
-| [`chordkit`](../chordkit) | Core library — SVG rendering, themes, export, interactive editor |
-| [`@chordkit/dictionary`](../dictionary) | Pre-built chord definitions for guitar, ukulele, and more |
-| [`@chordkit/parser`](../parser) | Parse chord names and chord sheets with embedded `[Am]` markers |
-| [`@chordkit/detect`](../detect) | Chord detection from MIDI numbers, frequencies, or note names |
-| [`@chordkit/react`](../react) | React components — `<ChordChart>`, `<ChordEditor>`, `<ChordProgression>` |
+| [`chordkit`](https://github.com/juliocarneiro/chordkit/tree/main/packages/chordkit) | Core library — SVG rendering, themes, export, interactive editor |
+| [`@chordkit/dictionary`](https://github.com/juliocarneiro/chordkit/tree/main/packages/dictionary) | Pre-built chord definitions for guitar, ukulele, and more |
+| [`@chordkit/parser`](https://github.com/juliocarneiro/chordkit/tree/main/packages/parser) | Parse chord names and chord sheets with embedded `[Am]` markers |
+| [`@chordkit/detect`](https://github.com/juliocarneiro/chordkit/tree/main/packages/detect) | Chord detection from MIDI numbers, frequencies, or note names |
+| [`@chordkit/react`](https://github.com/juliocarneiro/chordkit/tree/main/packages/react) | React components — `<ChordChart>`, `<ChordEditor>`, `<ChordProgression>` |
 
 ## License
 

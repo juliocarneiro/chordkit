@@ -146,11 +146,11 @@ The `score` starts at 1 for a perfect match and is reduced by ~0.08 for each ext
 
 | Package | Description |
 |---------|-------------|
-| [`chordkit`](../chordkit) | Core library — SVG rendering, themes, export, interactive editor |
-| [`@chordkit/dictionary`](../dictionary) | Pre-built chord definitions for guitar, ukulele, and more |
-| [`@chordkit/theory`](../theory) | Transpose chords, build scales, identify chords from notes |
-| [`@chordkit/parser`](../parser) | Parse chord names and chord sheets with embedded `[Am]` markers |
-| [`@chordkit/react`](../react) | React components — `<ChordChart>`, `<ChordEditor>`, `<ChordProgression>` |
+| [`chordkit`](https://github.com/juliocarneiro/chordkit/tree/main/packages/chordkit) | Core library — SVG rendering, themes, export, interactive editor |
+| [`@chordkit/dictionary`](https://github.com/juliocarneiro/chordkit/tree/main/packages/dictionary) | Pre-built chord definitions for guitar, ukulele, and more |
+| [`@chordkit/theory`](https://github.com/juliocarneiro/chordkit/tree/main/packages/theory) | Transpose chords, build scales, identify chords from notes |
+| [`@chordkit/parser`](https://github.com/juliocarneiro/chordkit/tree/main/packages/parser) | Parse chord names and chord sheets with embedded `[Am]` markers |
+| [`@chordkit/react`](https://github.com/juliocarneiro/chordkit/tree/main/packages/react) | React components — `<ChordChart>`, `<ChordEditor>`, `<ChordProgression>` |
 
 ## License
 

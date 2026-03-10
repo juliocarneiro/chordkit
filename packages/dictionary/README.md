@@ -99,11 +99,11 @@ ChordChart.svg({ chord: guitar.E, leftHanded: true })
 
 | Package | Description |
 |---------|-------------|
-| [`chordkit`](../chordkit) | Core library — SVG rendering, themes, export, interactive editor |
-| [`@chordkit/theory`](../theory) | Transpose chords, build scales, identify chords from notes |
-| [`@chordkit/parser`](../parser) | Parse chord names and chord sheets with embedded `[Am]` markers |
-| [`@chordkit/detect`](../detect) | Chord detection from MIDI numbers, frequencies, or note names |
-| [`@chordkit/react`](../react) | React components — `<ChordChart>`, `<ChordEditor>`, `<ChordProgression>` |
+| [`chordkit`](https://github.com/juliocarneiro/chordkit/tree/main/packages/chordkit) | Core library — SVG rendering, themes, export, interactive editor |
+| [`@chordkit/theory`](https://github.com/juliocarneiro/chordkit/tree/main/packages/theory) | Transpose chords, build scales, identify chords from notes |
+| [`@chordkit/parser`](https://github.com/juliocarneiro/chordkit/tree/main/packages/parser) | Parse chord names and chord sheets with embedded `[Am]` markers |
+| [`@chordkit/detect`](https://github.com/juliocarneiro/chordkit/tree/main/packages/detect) | Chord detection from MIDI numbers, frequencies, or note names |
+| [`@chordkit/react`](https://github.com/juliocarneiro/chordkit/tree/main/packages/react) | React components — `<ChordChart>`, `<ChordEditor>`, `<ChordProgression>` |
 
 ## License
 

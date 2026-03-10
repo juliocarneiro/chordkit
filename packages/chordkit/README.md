@@ -296,11 +296,11 @@ Every generated SVG includes:
 
 | Package | Description |
 |---------|-------------|
-| [`@chordkit/dictionary`](../dictionary) | Pre-built chord definitions for guitar, ukulele, and more |
-| [`@chordkit/theory`](../theory) | Transpose chords, build scales, identify chords from notes |
-| [`@chordkit/parser`](../parser) | Parse chord names and chord sheets with embedded `[Am]` markers |
-| [`@chordkit/react`](../react) | React components — `<ChordChart>`, `<ChordEditor>`, `<ChordProgression>` |
-| [`@chordkit/detect`](../detect) | Chord detection from note names, MIDI numbers, or audio frequencies |
+| [`@chordkit/dictionary`](https://github.com/juliocarneiro/chordkit/tree/main/packages/dictionary) | Pre-built chord definitions for guitar, ukulele, and more |
+| [`@chordkit/theory`](https://github.com/juliocarneiro/chordkit/tree/main/packages/theory) | Transpose chords, build scales, identify chords from notes |
+| [`@chordkit/parser`](https://github.com/juliocarneiro/chordkit/tree/main/packages/parser) | Parse chord names and chord sheets with embedded `[Am]` markers |
+| [`@chordkit/react`](https://github.com/juliocarneiro/chordkit/tree/main/packages/react) | React components — `<ChordChart>`, `<ChordEditor>`, `<ChordProgression>` |
+| [`@chordkit/detect`](https://github.com/juliocarneiro/chordkit/tree/main/packages/detect) | Chord detection from note names, MIDI numbers, or audio frequencies |
 
 ## License
 
