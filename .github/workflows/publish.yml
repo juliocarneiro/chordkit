@@ -3,19 +3,27 @@ name: Publish to npm
 on:
   release:
     types: [published]
+  # Allows re-running a publish from the Actions tab without cutting a new release.
+  workflow_dispatch:
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      # Required for npm trusted publishing: the job authenticates to npm with a
+      # short-lived OIDC token, so no NPM_TOKEN secret is involved.
+      id-token: write
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
           registry-url: https://registry.npmjs.org
+
+      # Trusted publishing needs npm 11.5.1 or newer.
+      - run: npm install -g npm@^11.5.1
 
       - run: npm ci
 
@@ -23,32 +31,17 @@ jobs:
 
       - run: npm test
 
-      - name: Publish chordkit
-        run: npm publish --workspace=packages/chordkit
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish @chordkit/dictionary
-        run: npm publish --workspace=packages/dictionary --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish @chordkit/theory
-        run: npm publish --workspace=packages/theory --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish @chordkit/parser
-        run: npm publish --workspace=packages/parser --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish @chordkit/react
-        run: npm publish --workspace=packages/react --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: Publish @chordkit/detect
-        run: npm publish --workspace=packages/detect --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # chordkit goes first: the other packages depend on it.
+      # Versions already on the registry are skipped, so a run that failed
+      # halfway can simply be started again.
+      - name: Publish packages
+        run: |
+          for dir in chordkit dictionary theory parser react detect; do
+            name=$(node -p "require('./packages/$dir/package.json').name")
+            version=$(node -p "require('./packages/$dir/package.json').version")
+            if npm view "$name@$version" version >/dev/null 2>&1; then
+              echo "::notice::$name@$version is already published, skipping"
+            else
+              npm publish --workspace="packages/$dir" --access public
+            fi
+          done
