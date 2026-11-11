@@ -5,7 +5,10 @@ export interface ParsedChord {
   root: string
   /** Chord quality, e.g. "minor" */
   quality: ChordQuality
-  /** Extension labels, e.g. ["7", "9"] */
+  /**
+   * Everything after the quality, in order: extensions ("7", "maj7", "add9", "6/9"),
+   * alterations ("b5", "#9") and late suspensions ("sus4" in "C7sus4").
+   */
   extensions: string[]
   /** Bass note for slash chords, e.g. "G" in "Am7/G" */
   bass?: string
@@ -25,26 +28,34 @@ const ROOT_PATTERN = /^([A-G][#b]?)/
 const BASS_PATTERN = /\/([A-G][#b]?)$/
 
 const QUALITY_TOKENS: Array<{ pattern: RegExp; quality: ChordQuality }> = [
-  { pattern: /^(min|minor|m(?![a-z]))/,      quality: 'minor' },
-  // maj must NOT consume when immediately followed by a digit (e.g. maj7, maj9)
-  { pattern: /^(maj(?!\d)|major(?!\d)|M(?![a-z]))/, quality: 'major' },
-  { pattern: /^(dim|°)/,                     quality: 'diminished' },
-  { pattern: /^(aug|\+)/,                    quality: 'augmented' },
-  { pattern: /^sus2/,                        quality: 'suspended2' },
-  { pattern: /^sus4?/,                       quality: 'suspended4' },
-  { pattern: /^5/,                           quality: 'power' },
+  // "m" is minor unless it starts "maj"/"major" (Cmaj7); "Cmmaj7" is minor + maj7
+  { pattern: /^(minor|min|m(?!aj))/, quality: 'minor' },
+  // maj / M must NOT consume when followed by a digit: maj7, maj9 and M7 are extensions
+  { pattern: /^(major(?!\d)|maj(?!\d)|M(?![a-z\d]))/, quality: 'major' },
+  { pattern: /^(dim|°)/, quality: 'diminished' },
+  { pattern: /^(aug|\+)/, quality: 'augmented' },
+  { pattern: /^sus2/, quality: 'suspended2' },
+  { pattern: /^sus4?/, quality: 'suspended4' },
+  { pattern: /^5/, quality: 'power' },
 ]
 
-const EXTENSION_TOKENS = /^(maj7|maj9|maj11|maj13|11|13|add9|add11|add13|[679])/
+// Longer alternatives first, so "6/9" is not read as "6" and "13" not as a stray digit.
+const EXTENSION_TOKENS =
+  /^(maj7|maj9|maj11|maj13|M7|M9|M11|M13|6\/9|11|13|add9|add11|add13|sus2|sus4|sus|b5|#5|b9|#9|#11|b13|[679])/
+
+/** Extensions that turn a plain major triad into a dominant chord */
+const DOMINANT_EXTENSIONS = new Set(['7', '9', '11', '13'])
 
 /**
  * Parses a chord name string into its components.
- * Returns null if the string is not a recognizable chord name.
+ * Returns null if the string is not a recognizable chord name — including words
+ * that merely start with a note letter, such as "Bridge" or "Capo".
  *
  * @example
  * parseChordName('Am7')    // { root: 'A', quality: 'minor', extensions: ['7'], bass: undefined }
  * parseChordName('C#maj7') // { root: 'C#', quality: 'major', extensions: ['maj7'] }
  * parseChordName('G/B')    // { root: 'G', quality: 'major', extensions: [], bass: 'B' }
+ * parseChordName('Cm7b5')  // { root: 'C', quality: 'minor', extensions: ['7', 'b5'] }
  */
 export function parseChordName(name: string): ParsedChord | null {
   const trimmed = name.trim()
@@ -54,7 +65,8 @@ export function parseChordName(name: string): ParsedChord | null {
   if (!rootMatch) return null
 
   const root = rootMatch[1]
-  let rest = trimmed.slice(root.length)
+  // Parentheses only group alterations: C7(#9) is C7#9
+  let rest = trimmed.slice(root.length).replace(/[()]/g, '')
 
   let bass: string | undefined
   const bassMatch = rest.match(BASS_PATTERN)
@@ -73,17 +85,20 @@ export function parseChordName(name: string): ParsedChord | null {
     }
   }
 
-  // A lone "7" on a major chord implies dominant
   const extensions: string[] = []
-  let extRest = rest
-  while (extRest.length > 0) {
-    const match = extRest.match(EXTENSION_TOKENS)
+  while (rest.length > 0) {
+    const match = rest.match(EXTENSION_TOKENS)
     if (!match) break
-    extensions.push(match[1])
-    extRest = extRest.slice(match[0].length)
+    // "M7" is shorthand for "maj7"
+    extensions.push(match[1].replace(/^M(?=\d)/, 'maj'))
+    rest = rest.slice(match[0].length)
   }
 
-  if (extensions.includes('7') && quality === 'major') {
+  // Anything left over means this was not a chord name after all.
+  if (rest.length > 0) return null
+
+  // A 7, 9, 11 or 13 on a plain major chord implies dominant
+  if (quality === 'major' && extensions.some((e) => DOMINANT_EXTENSIONS.has(e))) {
     quality = 'dominant'
   }
 

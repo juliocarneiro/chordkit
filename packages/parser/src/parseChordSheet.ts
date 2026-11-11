@@ -58,14 +58,21 @@ function parseLineSegments(line: string): ChordSheetSegment[] {
   }
 
   for (let i = 0; i < matches.length; i++) {
-    const { chordName, end } = matches[i]
+    const { chordName, start, end } = matches[i]
     const textEnd = i + 1 < matches.length ? matches[i + 1].start : line.length
 
     const parsed = parseChordName(chordName)
-    segments.push({
-      chord: parsed ?? undefined,
-      text: line.slice(end, textEnd),
-    })
+    if (parsed) {
+      segments.push({ chord: parsed, text: line.slice(end, textEnd) })
+      continue
+    }
+
+    // Not a chord (e.g. "[Chorus]"): keep the marker as written, merged into
+    // the preceding plain-text segment so no input is lost.
+    const text = line.slice(start, textEnd)
+    const previous = segments[segments.length - 1]
+    if (previous && !previous.chord) previous.text += text
+    else segments.push({ text })
   }
 
   return segments

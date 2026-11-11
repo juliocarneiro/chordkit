@@ -20,25 +20,61 @@ export function toSVGDataURL(svgString: string): string {
 export interface PNGOptions {
   /** Scale factor for higher resolution (default: 2) */
   scale?: number
-  /** Explicit width for the output. If omitted, extracted from SVG viewBox. */
+  /** Explicit width for the output. If omitted, taken from the SVG. */
   width?: number
-  /** Explicit height for the output. If omitted, extracted from SVG viewBox. */
+  /** Explicit height for the output. If omitted, derived from the SVG's aspect ratio. */
   height?: number
 }
 
-function ensureSvgDimensions(svgString: string, width?: number, height?: number): string {
-  const viewBoxMatch = svgString.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/)
-  const w = width ?? (viewBoxMatch ? parseFloat(viewBoxMatch[1]) : 260)
-  const h = height ?? (viewBoxMatch ? parseFloat(viewBoxMatch[2]) : 300)
+const finite = (n: number | undefined): number | undefined =>
+  n !== undefined && Number.isFinite(n) && n > 0 ? n : undefined
 
-  if (/\bwidth="/.test(svgString) && /\bheight="/.test(svgString)) {
-    return svgString
+/**
+ * Make sure the root <svg> element carries pixel `width` and `height` attributes,
+ * which browsers need to rasterize it at a predictable size.
+ *
+ * Only the root tag is inspected: attributes such as `stroke-width` or the
+ * `height` of an inner <rect> do not count. Explicit `width`/`height` arguments
+ * replace whatever the SVG declares; a missing side follows the viewBox ratio.
+ */
+export function ensureSvgDimensions(svgString: string, width?: number, height?: number): string {
+  const tagMatch = svgString.match(/<svg\b[^>]*>/)
+  if (!tagMatch) return svgString
+  const tag = tagMatch[0]
+
+  const readAttr = (name: string): number | undefined => {
+    const m = tag.match(new RegExp(`\\s${name}="([^"]*)"`))
+    return m && /^\s*[\d.]+(px)?\s*$/.test(m[1]) ? finite(parseFloat(m[1])) : undefined
   }
 
-  return svgString.replace(
-    '<svg ',
-    `<svg width="${w}" height="${h}" `,
-  )
+  const viewBox = tag.match(/\sviewBox="\s*-?[\d.]+[\s,]+-?[\d.]+[\s,]+([\d.]+)[\s,]+([\d.]+)\s*"/)
+  const vbW = viewBox ? finite(parseFloat(viewBox[1])) : undefined
+  const vbH = viewBox ? finite(parseFloat(viewBox[2])) : undefined
+  const ratio = vbW && vbH ? vbH / vbW : undefined
+
+  const wantW = finite(width)
+  const wantH = finite(height)
+  const curW = readAttr('width')
+  const curH = readAttr('height')
+
+  let w: number
+  let h: number
+  if (wantW !== undefined || wantH !== undefined) {
+    w = wantW ?? (ratio ? wantH! / ratio : curW ?? vbW ?? 260)
+    h = wantH ?? (ratio ? w * ratio : curH ?? vbH ?? 300)
+  } else if (curW !== undefined && curH !== undefined) {
+    return svgString
+  } else {
+    w = curW ?? (curH !== undefined && ratio ? curH / ratio : vbW ?? 260)
+    h = curH ?? (ratio ? w * ratio : vbH ?? 300)
+  }
+
+  const round = (n: number) => Math.round(n * 100) / 100
+  const newTag = tag
+    .replace(/\s(?:width|height)="[^"]*"/g, '')
+    .replace(/^<svg\b/, `<svg width="${round(w)}" height="${round(h)}"`)
+
+  return svgString.replace(tag, newTag)
 }
 
 /**

@@ -40,10 +40,11 @@ describe('transpose', () => {
     expect(AM.name).toBe('Am')
   })
 
-  it('preserves open and muted arrays', () => {
+  it('preserves muted strings and frets the strings that were open', () => {
     const result = transpose(AM, 2)
     expect(result.muted).toEqual(AM.muted)
-    expect(result.open).toEqual(AM.open)
+    expect(result.open).toBeUndefined()
+    expect(result.barres).toEqual([{ fret: 2, fromString: 1, toString: 5 }])
   })
 
   it('transposes a chord by one semitone up', () => {
@@ -62,9 +63,17 @@ describe('transpose', () => {
     }
   })
 
-  it('sets position to 1 after transposition', () => {
+  it('moves position with the shape when it no longer fits from the nut', () => {
     const chord: ChordDiagram = { name: 'Am', fingers: [{ string: 2, fret: 1 }], position: 5 }
     const result = transpose(chord, 2, 'guitar')
+    expect(result.position).toBe(7)
+    expect(result.fingers).toEqual([{ string: 2, fret: 1 }])
+  })
+
+  it('uses position 1 when the transposed shape fits from the nut', () => {
+    const chord: ChordDiagram = { name: 'Am', fingers: [{ string: 2, fret: 1 }], position: 5 }
+    const result = transpose(chord, -2, 'guitar')
     expect(result.position).toBe(1)
+    expect(result.fingers).toEqual([{ string: 2, fret: 3 }])
   })
 })

@@ -294,7 +294,17 @@ const chord = editor.getChord()
 
 // Clear everything
 editor.clear()
+
+// Change options later (theme, instrument, orientation, width, leftHanded)
+editor.setOptions({ theme: 'dark' })
+
+// Remove the editor and its listeners
+editor.destroy()
 ```
+
+The first argument is a CSS selector or the element itself. Every fret position and
+string marker is a focusable button, so the editor also works from the keyboard
+(Tab to move, Enter or Space to toggle).
 
 ## Chord dictionary
 

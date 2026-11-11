@@ -134,6 +134,7 @@ export interface ResolvedConfig {
 
 /** Layout measurements computed from resolved config */
 export interface ChartLayout {
+  orientation: 'vertical' | 'horizontal'
   totalWidth: number
   totalHeight: number
   gridX: number

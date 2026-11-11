@@ -101,9 +101,9 @@ export const guitar: Record<string, ChordDiagram> = {
   Bm: {
     name: 'Bm',
     fingers: [
-      { string: 3, fret: 3 },
+      { string: 2, fret: 3 },
+      { string: 3, fret: 4 },
       { string: 4, fret: 4 },
-      { string: 5, fret: 4 },
     ],
     barres: [{ fret: 2, fromString: 1, toString: 5 }],
     muted: [6],
@@ -113,10 +113,11 @@ export const guitar: Record<string, ChordDiagram> = {
     name: 'C7',
     fingers: [
       { string: 2, fret: 1 },
+      { string: 3, fret: 3 },
       { string: 4, fret: 2 },
       { string: 5, fret: 3 },
     ],
-    open: [1, 3],
+    open: [1],
     muted: [6],
   },
   D7: {
@@ -159,9 +160,9 @@ export const guitar: Record<string, ChordDiagram> = {
     name: 'Am7',
     fingers: [
       { string: 2, fret: 1 },
-      { string: 3, fret: 2 },
+      { string: 4, fret: 2 },
     ],
-    open: [1, 4, 5],
+    open: [1, 3, 5],
     muted: [6],
   },
   Dm7: {
@@ -177,8 +178,8 @@ export const guitar: Record<string, ChordDiagram> = {
   Em7: {
     name: 'Em7',
     fingers: [
-      { string: 4, fret: 2 },
+      { string: 5, fret: 2 },
     ],
-    open: [1, 2, 3, 5, 6],
+    open: [1, 2, 3, 4, 6],
   },
 }

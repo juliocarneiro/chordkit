@@ -18,14 +18,14 @@ import type { PNGOptions, DownloadOptions } from './export'
  * or instantiated with a DOM selector/element for browser rendering.
  */
 export class ChordChart {
-  private _target: string | null = null
+  private _target: string | Element | null = null
   private _options: Partial<ChordChartOptions> = {}
 
   /**
    * Create a ChordChart instance attached to a DOM element.
-   * Pass a CSS selector string or omit for string-only rendering.
+   * Pass a CSS selector string or an element, or omit for string-only rendering.
    */
-  constructor(target?: string) {
+  constructor(target?: string | Element) {
     this._target = target ?? null
   }
 
@@ -113,6 +113,12 @@ export class ChordChart {
     return this
   }
 
+  /** Resolve the target to an element, or null when there is no DOM / no target */
+  private _element(): Element | null {
+    if (!this._target || typeof document === 'undefined') return null
+    return typeof this._target === 'string' ? document.querySelector(this._target) : this._target
+  }
+
   private _ensureChord(): void {
     if (!this._options.chord) {
       throw new Error('ChordChart: chord data is required. Call .chord() before .draw()')
@@ -123,16 +129,17 @@ export class ChordChart {
    * Render the chord diagram.
    * In a browser with a target element, injects the SVG into the DOM.
    * Always returns the SVG string.
+   * @throws if a selector was given and no element matches it
    */
   draw(): string {
     this._ensureChord()
     const svgString = render(resolveConfig(this._options as ChordChartOptions))
 
-    if (this._target && typeof document !== 'undefined') {
-      const el = document.querySelector(this._target)
-      if (el) {
-        el.innerHTML = svgString
-      }
+    const el = this._element()
+    if (el) {
+      el.innerHTML = svgString
+    } else if (typeof this._target === 'string' && typeof document !== 'undefined') {
+      throw new Error(`ChordChart: no element matches "${this._target}"`)
     }
 
     return svgString
@@ -164,12 +171,8 @@ export class ChordChart {
 
   /** Remove the rendered SVG from the target element */
   clear(): this {
-    if (this._target && typeof document !== 'undefined') {
-      const el = document.querySelector(this._target)
-      if (el) {
-        el.innerHTML = ''
-      }
-    }
+    const el = this._element()
+    if (el) el.innerHTML = ''
     return this
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@chordkit/theory",
-  "version": "1.0.8",
+  "version": "1.1.0",
   "description": "Music theory utilities for chordkit — transpose, scales, chord identification, and more",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -17,14 +17,25 @@
       }
     }
   },
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsup",
     "test": "vitest run",
     "test:watch": "vitest",
-    "clean": "rm -rf dist"
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "typecheck": "tsc --noEmit"
   },
-  "keywords": ["chord", "music", "theory", "transpose", "scale", "chordkit"],
+  "keywords": [
+    "chord",
+    "music",
+    "theory",
+    "transpose",
+    "scale",
+    "chordkit"
+  ],
   "license": "MIT",
   "author": "Julio Carneiro",
   "repository": {

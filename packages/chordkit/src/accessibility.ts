@@ -35,16 +35,19 @@ export function generateAriaDescription(
     parts.push(`open: ${openStr}`)
   }
 
+  // Frets in the diagram are relative to the starting position; announce the real fret.
+  const offset = (chord.position ?? 1) - 1
+
   if (chord.fingers.length) {
     const fingerStr = chord.fingers
-      .map((f) => `string ${f.string} fret ${f.fret}`)
+      .map((f) => `string ${f.string} fret ${f.fret + offset}`)
       .join(', ')
     parts.push(`fingers: ${fingerStr}`)
   }
 
   if (chord.barres?.length) {
     const barreStr = chord.barres
-      .map((b) => `barre on fret ${b.fret} from string ${b.fromString} to ${b.toString}`)
+      .map((b) => `barre on fret ${b.fret + offset} from string ${b.fromString} to ${b.toString}`)
       .join(', ')
     parts.push(barreStr)
   }

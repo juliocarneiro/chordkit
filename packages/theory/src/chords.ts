@@ -1,5 +1,6 @@
 import { noteFromIndex, noteIndex, semitonesBetween } from './notes'
 import type { NoteStyle } from './notes'
+import { preferredStyle } from './scales'
 
 export interface DiatonicChord {
   /** Roman numeral degree (I, II, III…) */
@@ -78,7 +79,7 @@ export function getDiatonicChords(
 ): DiatonicChord[] {
   const intervals = scaleType === 'major' ? MAJOR_SCALE_INTERVALS : MINOR_SCALE_INTERVALS
   const rootIdx = noteIndex(root)
-  const resolvedStyle: NoteStyle = style ?? (root.includes('b') ? 'flat' : 'sharp')
+  const resolvedStyle: NoteStyle = style ?? preferredStyle(root, scaleType)
   const scaleNotes = intervals.map((i) => noteFromIndex(rootIdx + i, resolvedStyle))
   return DEGREES.map((_, idx) => buildDiatonicChord(scaleNotes, idx, resolvedStyle))
 }

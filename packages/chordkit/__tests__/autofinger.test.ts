@@ -3,7 +3,7 @@ import { autoFinger } from '../src/autofinger'
 import type { ChordDiagram } from '../src/types'
 
 describe('autoFinger', () => {
-  it('assigns fingers in fret order', () => {
+  it('assigns fingers in fret order, lower-pitched string first on a shared fret', () => {
     const chord: ChordDiagram = {
       name: 'Am',
       fingers: [
@@ -13,9 +13,9 @@ describe('autoFinger', () => {
       ],
     }
     const result = autoFinger(chord)
-    expect(result.fingers[0].text).toBe('2')
+    expect(result.fingers[0].text).toBe('1')
     expect(result.fingers[1].text).toBe('3')
-    expect(result.fingers[2].text).toBe('4')
+    expect(result.fingers[2].text).toBe('2')
   })
 
   it('assigns finger 1 to barre fret', () => {
@@ -53,7 +53,7 @@ describe('autoFinger', () => {
       fingers: [{ string: 1, fret: 3 }],
     }
     const result = autoFinger(chord)
-    expect(result.fingers[0].text).toBe('2')
+    expect(result.fingers[0].text).toBe('1')
   })
 
   it('returns a new object without mutating the original', () => {

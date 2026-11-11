@@ -19,27 +19,27 @@ export const ukulele: Record<string, ChordDiagram> = {
   D: {
     name: 'D',
     fingers: [
-      { string: 1, fret: 2 },
       { string: 2, fret: 2 },
       { string: 3, fret: 2 },
+      { string: 4, fret: 2 },
     ],
-    open: [4],
+    open: [1],
   },
   Dm: {
     name: 'Dm',
     fingers: [
-      { string: 1, fret: 1 },
-      { string: 2, fret: 2 },
+      { string: 2, fret: 1 },
       { string: 3, fret: 2 },
+      { string: 4, fret: 2 },
     ],
-    open: [4],
+    open: [1],
   },
   E: {
     name: 'E',
     fingers: [
       { string: 1, fret: 2 },
-      { string: 3, fret: 1 },
-      { string: 4, fret: 2 },
+      { string: 3, fret: 4 },
+      { string: 4, fret: 1 },
     ],
     open: [2],
   },
@@ -94,19 +94,14 @@ export const ukulele: Record<string, ChordDiagram> = {
   B: {
     name: 'B',
     fingers: [
-      { string: 1, fret: 2 },
-      { string: 2, fret: 2 },
-      { string: 3, fret: 2 },
-      { string: 4, fret: 2 },
+      { string: 3, fret: 3 },
+      { string: 4, fret: 4 },
     ],
+    barres: [{ fret: 2, fromString: 1, toString: 2 }],
   },
   Bm: {
     name: 'Bm',
-    fingers: [
-      { string: 1, fret: 2 },
-      { string: 2, fret: 2 },
-      { string: 3, fret: 2 },
-      { string: 4, fret: 2 },
-    ],
+    fingers: [{ string: 4, fret: 4 }],
+    barres: [{ fret: 2, fromString: 1, toString: 3 }],
   },
 }

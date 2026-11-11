@@ -7,11 +7,15 @@
   "scripts": {
     "build": "npm run build --workspaces",
     "test": "npm run test --workspaces",
-    "clean": "npm run clean --workspaces"
+    "clean": "npm run clean --workspaces",
+    "typecheck": "npm run typecheck --workspaces"
   },
   "devDependencies": {
+    "tsup": "^9.0.0",
     "typescript": "^5.7.0",
-    "tsup": "^8.4.0",
-    "vitest": "^3.0.0"
+    "vitest": "^5.1.0"
+  },
+  "engines": {
+    "node": "^22.18.0 || ^24.11.0 || >=26.0.0"
   }
 }
