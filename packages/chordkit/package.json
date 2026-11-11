@@ -1,6 +1,6 @@
 {
   "name": "chordkit",
-  "version": "1.0.8",
+  "version": "1.1.0",
   "description": "Modern, accessible SVG chord diagram generator for any stringed instrument",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -25,7 +25,8 @@
     "build": "tsup",
     "test": "vitest run",
     "test:watch": "vitest",
-    "clean": "rm -rf dist"
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [
     "chord",

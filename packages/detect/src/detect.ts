@@ -1,21 +1,7 @@
 import { midiToNote } from './midi'
 import { frequencyToMidi } from './frequency'
 import type { NoteStyle } from './midi'
-
-// ---------------------------------------------------------------------------
-// Note primitives (self-contained to keep this package zero-dep)
-// ---------------------------------------------------------------------------
-
-const NOTES_SHARP = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-const NOTES_FLAT  = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
-
-function noteIdx(note: string): number {
-  const t = note.trim()
-  let i = NOTES_SHARP.indexOf(t)
-  if (i === -1) i = NOTES_FLAT.indexOf(t)
-  if (i === -1) i = NOTES_SHARP.findIndex((n) => n[0] === t[0].toUpperCase())
-  return i === -1 ? 0 : i
-}
+import { NOTES_SHARP, NOTES_FLAT, parseChroma } from './notes'
 
 function noteName(idx: number, style: NoteStyle): string {
   const i = ((idx % 12) + 12) % 12
@@ -175,7 +161,14 @@ function detectFromChromaSet(chromaSet: number[], style: NoteStyle): ChordCandid
     }
   }
 
-  candidates.sort((a, b) => b.score - a.score)
+  // Highest score first. Symmetric note sets (C–D–G is both Csus2 and Gsus4) tie,
+  // so prefer the reading whose root is the bass note.
+  const bassName = noteName(chromaSet[0], style)
+  const rootIsBass = (c: ChordCandidate) => (c.root === bassName ? 1 : 0)
+  candidates.sort((a, b) => {
+    if (Math.abs(b.score - a.score) > 1e-9) return b.score - a.score
+    return rootIsBass(b) - rootIsBass(a)
+  })
   return candidates
 }
 
@@ -196,7 +189,9 @@ function detectFromChromaSet(chromaSet: number[], style: NoteStyle): ChordCandid
  */
 export function detectChord(notes: string[], options: DetectOptions = {}): ChordCandidate[] {
   const { style = 'sharp', maxCandidates = 5, minScore = 0.4 } = options
-  const chromas = [...new Set(notes.map(noteIdx))]
+  // Strings that are not note names are ignored rather than guessed at.
+  const parsed = notes.map(parseChroma).filter((c): c is number => c !== null)
+  const chromas = [...new Set(parsed)]
   const results = detectFromChromaSet(chromas, style)
   return results.filter((c) => c.score >= minScore).slice(0, maxCandidates)
 }

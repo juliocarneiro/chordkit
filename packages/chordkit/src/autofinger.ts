@@ -1,48 +1,49 @@
-import type { ChordDiagram, Finger } from './types'
+import type { Barre, ChordDiagram, Finger } from './types'
+
+function isUnderBarre(finger: Finger, barres: Barre[]): boolean {
+  return barres.some((b) => {
+    const from = Math.min(b.fromString, b.toString)
+    const to = Math.max(b.fromString, b.toString)
+    return b.fret === finger.fret && finger.string >= from && finger.string <= to
+  })
+}
 
 /**
  * Automatically assign finger numbers (1-4) to chord positions using
  * ergonomic heuristics based on fret/string positions.
  *
- * - Barre chords always use finger 1 (index)
- * - Remaining fingers are assigned 2, 3, 4 in fret order (lowest first),
- *   then by string order (highest pitch first) within the same fret.
+ * - A barre uses finger 1 (index), and so does any dot lying under it
+ * - The other dots are numbered in fret order (lowest first); on a shared fret
+ *   the lower-pitched string gets the lower finger
+ * - Numbering starts at 1, or at 2 when a barre already takes the index finger
+ * - With more dots than fingers the remaining ones repeat finger 4
  *
- * Returns a new ChordDiagram with `finger.text` populated.
+ * Returns a new ChordDiagram with `finger.text` populated, in the original order.
  * Fingers that already have explicit `text` are left unchanged.
  */
 export function autoFinger(chord: ChordDiagram): ChordDiagram {
-  const barreFrets = new Set((chord.barres ?? []).map((b) => b.fret))
+  const barres = chord.barres ?? []
+  const assigned = new Map<Finger, string>()
 
-  const barreAnnotated = (chord.barres ?? []).map((b) => ({
-    ...b,
-    text: b.text ?? '1',
-  }))
+  const free = chord.fingers
+    .filter((f) => !isUnderBarre(f, barres))
+    .sort((a, b) => (a.fret !== b.fret ? a.fret - b.fret : b.string - a.string))
 
-  const withoutBarreFret = chord.fingers.filter((f) => !barreFrets.has(f.fret))
-  const onBarreFret = chord.fingers.filter((f) => barreFrets.has(f.fret))
-
-  const sorted = [...withoutBarreFret].sort((a, b) => {
-    if (a.fret !== b.fret) return a.fret - b.fret
-    return a.string - b.string
-  })
-
-  let nextFinger = 2
-  const assignedFingers: Finger[] = sorted.map((f) => {
-    if (f.text) return f
-    const num = Math.min(nextFinger, 4)
+  let nextFinger = barres.length > 0 ? 2 : 1
+  for (const finger of free) {
+    if (finger.text) continue
+    assigned.set(finger, String(Math.min(nextFinger, 4)))
     nextFinger++
-    return { ...f, text: String(num) }
-  })
+  }
 
-  const barreFingers: Finger[] = onBarreFret.map((f) => {
+  const fingers = chord.fingers.map((f) => {
     if (f.text) return f
-    return { ...f, text: '1' }
+    return { ...f, text: assigned.get(f) ?? '1' }
   })
 
   return {
     ...chord,
-    fingers: [...barreFingers, ...assignedFingers],
-    barres: barreAnnotated.length > 0 ? barreAnnotated : chord.barres,
+    fingers,
+    barres: barres.length > 0 ? barres.map((b) => ({ ...b, text: b.text ?? '1' })) : chord.barres,
   }
 }

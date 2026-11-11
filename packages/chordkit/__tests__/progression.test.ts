@@ -91,11 +91,16 @@ describe('ChordProgression.svg', () => {
       chords: [Am, C, G],
       instrument: 'guitar',
     })
-    expect(svg).toContain('id="ck0-dot-grad"')
-    expect(svg).toContain('id="ck1-dot-grad"')
-    expect(svg).toContain('id="ck2-dot-grad"')
-    expect(svg).toContain('id="ck0-shadow"')
-    expect(svg).toContain('id="ck1-shadow"')
+    const ids = [...svg.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1])
+    expect(ids.filter((id) => id.endsWith('dot-grad'))).toHaveLength(3)
+    expect(ids.filter((id) => id.endsWith('shadow'))).toHaveLength(3)
+    expect(new Set(ids).size).toBe(ids.length)
+  })
+
+  it('keeps ids unique even when the same chord appears twice', () => {
+    const svg = ChordProgression.svg({ chords: [Am, Am] })
+    const ids = [...svg.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1])
+    expect(new Set(ids).size).toBe(ids.length)
   })
 
   it('references the correct prefixed IDs in finger dots', () => {
@@ -103,10 +108,10 @@ describe('ChordProgression.svg', () => {
       chords: [Am, C],
       instrument: 'guitar',
     })
-    expect(svg).toContain('url(#ck0-dot-grad)')
-    expect(svg).toContain('url(#ck1-dot-grad)')
-    expect(svg).toContain('url(#ck0-shadow)')
-    expect(svg).toContain('url(#ck1-shadow)')
+    const ids = [...svg.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1])
+    const refs = [...svg.matchAll(/url\(#([^)]+)\)/g)].map((m) => m[1])
+    expect(new Set(refs.filter((r) => r.endsWith('dot-grad'))).size).toBe(2)
+    for (const ref of refs) expect(ids).toContain(ref)
   })
 
   it('uses theme textColor for title, not currentColor', () => {

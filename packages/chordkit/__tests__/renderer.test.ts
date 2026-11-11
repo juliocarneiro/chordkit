@@ -33,8 +33,8 @@ describe('ChordChart.svg (static)', () => {
   it('includes accessibility attributes', () => {
     const svg = ChordChart.svg(AM_CHORD)
     expect(svg).toContain('role="img"')
-    expect(svg).toContain('<title>')
-    expect(svg).toContain('<desc>')
+    expect(svg).toMatch(/<title id="[^"]+">/)
+    expect(svg).toMatch(/<desc id="[^"]+">/)
     expect(svg).toContain('aria-labelledby')
   })
 
@@ -194,7 +194,7 @@ describe('ChordChart.svg left-handed mode', () => {
   it('preserves accessibility in left-handed mode', () => {
     const svg = ChordChart.svg({ ...AM_CHORD, leftHanded: true })
     expect(svg).toContain('role="img"')
-    expect(svg).toContain('<title>')
+    expect(svg).toMatch(/<title id="[^"]+">/)
     expect(svg).toContain('String 1 open')
     expect(svg).toContain('String 6 muted')
   })
@@ -320,9 +320,9 @@ describe('ChordChart.svg autoFinger', () => {
       ...AM_CHORD,
       autoFinger: true,
     })
+    expect(svg).toContain('>1<')
     expect(svg).toContain('>2<')
     expect(svg).toContain('>3<')
-    expect(svg).toContain('>4<')
   })
 
   it('works via builder API', () => {
@@ -350,7 +350,7 @@ describe('ChordChart.svg animate', () => {
     })
     expect(svg).toContain('<style>')
     expect(svg).toContain('@keyframes ck-pop')
-    expect(svg).toContain('ck-dot-0')
+    expect(svg).toMatch(/ck-[a-z0-9]+-dot-0/)
   })
 
   it('adds animation classes to finger dots', () => {
@@ -358,9 +358,9 @@ describe('ChordChart.svg animate', () => {
       ...AM_CHORD,
       animate: true,
     })
-    expect(svg).toContain('class="ck-dot-0"')
-    expect(svg).toContain('class="ck-dot-1"')
-    expect(svg).toContain('class="ck-dot-2"')
+    expect(svg).toMatch(/class="ck-[a-z0-9]+-dot-0"/)
+    expect(svg).toMatch(/class="ck-[a-z0-9]+-dot-1"/)
+    expect(svg).toMatch(/class="ck-[a-z0-9]+-dot-2"/)
   })
 
   it('adds animation classes to barre chords', () => {
@@ -373,7 +373,7 @@ describe('ChordChart.svg animate', () => {
       },
       animate: true,
     })
-    expect(svg).toContain('class="ck-barre-0"')
+    expect(svg).toMatch(/class="ck-[a-z0-9]+-barre-0"/)
     expect(svg).toContain('ck-barre-grow')
   })
 
@@ -395,6 +395,6 @@ describe('ChordChart.svg animate', () => {
       .animate()
       .draw()
     expect(svg).toContain('<style>')
-    expect(svg).toContain('ck-dot-0')
+    expect(svg).toMatch(/ck-[a-z0-9]+-dot-0/)
   })
 })

@@ -1,5 +1,4 @@
-const NOTE_NAMES_SHARP = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-const NOTE_NAMES_FLAT  = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B']
+import { NOTES_SHARP as NOTE_NAMES_SHARP, NOTES_FLAT as NOTE_NAMES_FLAT, parseNoteOffset } from './notes'
 
 export type NoteStyle = 'sharp' | 'flat'
 
@@ -34,9 +33,8 @@ export function midiToNote(midi: number, style: NoteStyle = 'sharp'): MidiNote {
  * @example noteToMidi('A', 4) → 69
  */
 export function noteToMidi(name: string, octave: number): number {
-  const upper = name.trim()
-  let chroma = NOTE_NAMES_SHARP.indexOf(upper)
-  if (chroma === -1) chroma = NOTE_NAMES_FLAT.indexOf(upper)
-  if (chroma === -1) return -1
-  return (octave + 1) * 12 + chroma
+  // Unwrapped on purpose: B#4 is C5 and Cb4 is B3.
+  const offset = parseNoteOffset(name)
+  if (offset === null) return -1
+  return (octave + 1) * 12 + offset
 }

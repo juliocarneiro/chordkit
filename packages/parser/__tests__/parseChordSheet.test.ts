@@ -51,10 +51,10 @@ describe('parseChordSheet', () => {
     expect(segments[1].chord?.bass).toBe('G')
   })
 
-  it('handles unknown chord markers gracefully (chord is undefined)', () => {
+  it('keeps unknown chord markers as plain text (chord is undefined)', () => {
     const lines = parseChordSheet('[notachord]text')
     expect(lines[0].segments[0].chord).toBeUndefined()
-    expect(lines[0].segments[0].text).toBe('text')
+    expect(lines[0].segments[0].text).toBe('[notachord]text')
   })
 
   it('returns an empty segments array for an empty string', () => {

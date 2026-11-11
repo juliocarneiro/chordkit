@@ -19,7 +19,7 @@ const Gm     = transpose(guitar.Am, -2)           // Am → Gm (-2 semitones)
 const FSharpm = transpose(guitar.Em, 2, 'guitar') // Em → F#m
 ```
 
-`transpose(chord, semitones, instrument?, style?)` recalculates all finger and barre positions on the fretboard for the given instrument tuning.
+`transpose(chord, semitones, instrument?, style?)` slides the whole shape along the neck, so the result is the same chord quality in the new key. Open strings become a barre when the shape moves up, a barre that reaches the nut becomes open strings again, and `position` is set so the shape fits the diagram. The bass note of slash chords (`C/G`) is transposed too.
 
 ## Scales
 

@@ -6,7 +6,7 @@ import type {
   ThemeInput,
 } from './types'
 import { resolveConfig } from './defaults'
-import { render } from './renderer'
+import { render, idPrefixFor } from './renderer'
 import { resolveTheme } from './themes'
 import { escapeXml, safeFontFamily } from './utils'
 
@@ -67,8 +67,8 @@ export class ChordProgression {
         noteLabels,
       }
       const config = resolveConfig(chartOpts)
-      const idPrefix = `ck${i}-`
-      const svg = render(config, idPrefix)
+      // Keep ids unique per chord and per progression (they are global once inlined).
+      const svg = render(config, `${idPrefixFor(config)}${i}-`)
 
       const viewBoxMatch = svg.match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/)
       const w = viewBoxMatch ? parseFloat(viewBoxMatch[1]) : chordWidth
@@ -92,15 +92,15 @@ export class ChordProgression {
     })
 
     const titleEl = title
-      ? `<text x="${totalWidth / 2}" y="26" text-anchor="middle" font-family="${safeFontFamily(resolvedTheme.fontFamily)}" font-size="20" font-weight="700" fill="${resolvedTheme.textColor}">${escapeXml(title)}</text>`
+      ? `<text x="${totalWidth / 2}" y="26" text-anchor="middle" font-family="${safeFontFamily(resolvedTheme.fontFamily)}" font-size="20" font-weight="700" fill="${escapeXml(resolvedTheme.textColor)}">${escapeXml(title)}</text>`
       : ''
 
-    const ariaLabel = title
-      ? `Chord progression: ${escapeXml(title)}`
-      : `Chord progression: ${chords.map((c) => c.name ?? 'chord').join(' - ')}`
+    const ariaLabel = escapeXml(
+      `Chord progression: ${title ?? chords.map((c) => c.name ?? 'chord').join(' - ')}`,
+    )
 
     return [
-      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${totalWidth} ${totalHeight}" role="img" aria-label="${ariaLabel}">`,
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${totalWidth} ${totalHeight}" width="${totalWidth}" role="img" aria-label="${ariaLabel}">`,
       titleEl ? `    ${titleEl}` : '',
       ...groups.map((g) => `    ${g}`),
       '</svg>',

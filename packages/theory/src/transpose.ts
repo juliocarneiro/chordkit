@@ -1,35 +1,43 @@
-import type { ChordDiagram, InstrumentPreset, InstrumentConfig } from 'chordkit'
-import { noteIndex, noteFromIndex } from './notes'
+import type { Barre, ChordDiagram, Finger, InstrumentPreset, InstrumentConfig } from 'chordkit'
+import { accidentalOf, noteIndex, noteFromIndex } from './notes'
 import type { NoteStyle } from './notes'
 
-const INSTRUMENT_TUNINGS: Record<InstrumentPreset, string[]> = {
-  guitar:     ['E', 'A', 'D', 'G', 'B', 'E'],
-  ukulele:    ['G', 'C', 'E', 'A'],
-  bass:       ['E', 'A', 'D', 'G'],
-  banjo:      ['G', 'D', 'G', 'B', 'D'],
-  cavaquinho: ['D', 'G', 'B', 'E'],
+/** Frets shown by every built-in instrument preset */
+const DEFAULT_VISIBLE_FRETS = 5
+
+function visibleFrets(instrument?: InstrumentPreset | InstrumentConfig): number {
+  return typeof instrument === 'object' && instrument.frets > 0 ? instrument.frets : DEFAULT_VISIBLE_FRETS
 }
 
-function resolveTuning(instrument?: InstrumentPreset | InstrumentConfig): string[] {
-  if (!instrument) return INSTRUMENT_TUNINGS.guitar
-  if (typeof instrument === 'string') return INSTRUMENT_TUNINGS[instrument] ?? INSTRUMENT_TUNINGS.guitar
-  return instrument.tuning ?? INSTRUMENT_TUNINGS.guitar
+const mod12 = (n: number) => ((n % 12) + 12) % 12
+
+function transposeName(name: string, semitones: number, style?: NoteStyle): string {
+  const rootMatch = name.match(/^[A-G][#b]?/)
+  if (!rootMatch) return name
+  // Decide from the root alone: the "b" in "Cm7b5" says nothing about the key.
+  const resolvedStyle: NoteStyle = style ?? accidentalOf(rootMatch[0]) ?? 'sharp'
+  const shift = (note: string) => noteFromIndex(noteIndex(note) + semitones, resolvedStyle)
+  return name
+    .replace(/^[A-G][#b]?/, shift)
+    .replace(/\/([A-G][#b]?)$/, (_, bass: string) => `/${shift(bass)}`)
 }
 
 /**
  * Transposes a ChordDiagram by the given number of semitones.
  *
- * The function recalculates finger positions on the fretboard by:
- * 1. Finding the absolute note at each finger position (open tuning + fret + chord position)
- * 2. Shifting the note by the desired semitones
- * 3. Finding the new fret on the same string that produces that note
+ * The whole shape slides along the neck, so every string moves by the same interval
+ * and the result is the same chord quality in the new key:
  *
- * When no single fret position is possible (the transposed note is below the open string),
- * the function returns the chord with an adjusted `position` (capo offset).
+ * - Open strings cannot stay open when the shape moves up; they are covered by a
+ *   barre (or a single finger) at the new fret.
+ * - A finger or barre that lands on the nut becomes open strings.
+ * - The shape is kept as low on the neck as possible. Transposing down past the
+ *   nut wraps up an octave instead.
+ * - `position` is set so that the fret numbers fit the diagram (frets stay relative to it).
  *
  * @param chord - The source chord diagram
  * @param semitones - Positive = up, negative = down
- * @param instrument - Instrument preset or config (default: 'guitar')
+ * @param instrument - Instrument preset or config; only its fret count is used (default: 5 frets)
  * @param style - Accidental style for the transposed chord name
  */
 export function transpose(
@@ -40,48 +48,65 @@ export function transpose(
 ): ChordDiagram {
   if (semitones === 0) return chord
 
-  const tuning = resolveTuning(instrument)
-  const totalStrings = tuning.length
-  const position = chord.position ?? 1
+  const result: ChordDiagram = { ...chord }
+  if (chord.name) result.name = transposeName(chord.name, semitones, style)
 
-  const transposeFret = (stringNum: number, fret: number): number => {
-    const tuningIdx = totalStrings - stringNum
-    const openNote = tuning[tuningIdx] ?? 'E'
-    const absoluteFret = fret + (position - 1)
-    const currentNoteIdx = (noteIndex(openNote) + absoluteFret) % 12
-    const targetNoteIdx = ((currentNoteIdx + semitones) % 12 + 12) % 12
-    const openNoteIdx = noteIndex(openNote)
-    let newFret = ((targetNoteIdx - openNoteIdx) % 12 + 12) % 12
-    if (newFret === 0 && fret > 0) newFret = 12
-    return newFret
+  const offset = (chord.position ?? 1) - 1
+  const open = chord.open ?? []
+  const muted = new Set(chord.muted ?? [])
+
+  // Work in absolute frets (0 = open string).
+  const absFingers = chord.fingers.map((f) => ({ ...f, fret: f.fret + offset }))
+  const absBarres = (chord.barres ?? []).map((b) => ({ ...b, fret: b.fret + offset }))
+  const frettedFrets = [...absFingers, ...absBarres].map((x) => x.fret)
+
+  if (frettedFrets.length === 0 && open.length === 0) return result
+
+  const lowest = open.length > 0 ? 0 : Math.min(...frettedFrets)
+  let shift = mod12(semitones)
+  if (lowest + shift - 12 >= 0) shift -= 12
+
+  let fingers: Finger[] = absFingers.map((f) => ({ ...f, fret: f.fret + shift }))
+  let barres: Barre[] = absBarres.map((b) => ({ ...b, fret: b.fret + shift }))
+  const newOpen = new Set<number>()
+
+  if (shift === 0) {
+    open.forEach((s) => newOpen.add(s))
+  } else if (open.length === 1) {
+    fingers.push({ string: open[0], fret: shift })
+  } else if (open.length > 1) {
+    barres.unshift({ fret: shift, fromString: Math.min(...open), toString: Math.max(...open) })
   }
 
-  const newFingers = chord.fingers.map((f) => ({
-    ...f,
-    fret: transposeFret(f.string, f.fret),
-  }))
-
-  const newBarres = (chord.barres ?? []).map((b) => ({
-    ...b,
-    fret: transposeFret(b.fromString, b.fret),
-  }))
-
-  let newName = chord.name
-  if (chord.name) {
-    const resolvedStyle: NoteStyle = style ?? (chord.name.includes('b') ? 'flat' : 'sharp')
-    const rootMatch = chord.name.match(/^([A-G][#b]?)/)
-    if (rootMatch) {
-      const oldRoot = rootMatch[1]
-      const newRoot = noteFromIndex(noteIndex(oldRoot) + semitones, resolvedStyle)
-      newName = chord.name.replace(oldRoot, newRoot)
+  // Anything that landed on the nut is an open string again.
+  const stillFretted = new Set(fingers.filter((f) => f.fret > 0).map((f) => f.string))
+  for (const f of fingers) {
+    if (f.fret === 0 && !stillFretted.has(f.string)) newOpen.add(f.string)
+  }
+  for (const b of barres) {
+    if (b.fret !== 0) continue
+    const from = Math.min(b.fromString, b.toString)
+    const to = Math.max(b.fromString, b.toString)
+    for (let s = from; s <= to; s++) {
+      if (!stillFretted.has(s) && !muted.has(s)) newOpen.add(s)
     }
   }
+  fingers = fingers.filter((f) => f.fret > 0)
+  barres = barres.filter((b) => b.fret > 0)
 
-  return {
-    ...chord,
-    name: newName,
-    fingers: newFingers,
-    barres: newBarres.length > 0 ? newBarres : chord.barres,
-    position: 1,
-  }
+  // Choose a starting position that keeps the shape inside the diagram.
+  const frets = [...fingers, ...barres].map((x) => x.fret)
+  const position = frets.length > 0 && Math.max(...frets) > visibleFrets(instrument) ? Math.min(...frets) : 1
+  const relative = position - 1
+
+  result.fingers = fingers.map((f) => ({ ...f, fret: f.fret - relative }))
+  result.position = position
+
+  if (barres.length > 0) result.barres = barres.map((b) => ({ ...b, fret: b.fret - relative }))
+  else delete result.barres
+
+  if (newOpen.size > 0) result.open = [...newOpen].sort((a, b) => a - b)
+  else delete result.open
+
+  return result
 }

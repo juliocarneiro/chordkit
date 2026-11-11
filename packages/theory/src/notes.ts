@@ -11,16 +11,30 @@ const ENHARMONIC_MAP: Record<string, string> = {
   'A#': 'Bb', 'Bb': 'A#',
 }
 
-/** Returns the chromatic index (0–11) of a note name */
+const LETTER_INDEX: Record<string, number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 }
+const NOTE_PATTERN = /^([A-Ga-g])([#♯b♭]*)$/
+
+/**
+ * Returns the chromatic index (0–11) of a note name.
+ * The letter is case-insensitive and may be followed by sharps (# ♯) or flats (b ♭),
+ * so Cb is B, E# is F and "bb" is B flat.
+ * @throws if the string is not a note name
+ */
 export function noteIndex(note: string): number {
-  const upper = note.trim()
-  let idx = NOTES_SHARP.indexOf(upper as typeof NOTES_SHARP[number])
-  if (idx === -1) idx = NOTES_FLAT.indexOf(upper as typeof NOTES_FLAT[number])
-  if (idx === -1) {
-    const base = upper.charAt(0).toUpperCase()
-    idx = NOTES_SHARP.findIndex((n) => n.charAt(0) === base)
+  const match = NOTE_PATTERN.exec(note.trim())
+  if (!match) throw new Error(`Invalid note name: "${note}"`)
+  let idx = LETTER_INDEX[match[1].toUpperCase()]
+  for (const accidental of match[2]) {
+    idx += accidental === '#' || accidental === '♯' ? 1 : -1
   }
-  return idx === -1 ? 0 : idx
+  return ((idx % 12) + 12) % 12
+}
+
+/** Which accidental a note name is written with, or null for a natural (or invalid) name */
+export function accidentalOf(note: string): NoteStyle | null {
+  const match = NOTE_PATTERN.exec(note.trim())
+  if (!match || !match[2]) return null
+  return match[2][0] === '#' || match[2][0] === '♯' ? 'sharp' : 'flat'
 }
 
 /** Returns the note name at a given chromatic index */
@@ -40,11 +54,13 @@ export function semitonesBetween(from: string, to: string): number {
   return ((diff % 12) + 12) % 12
 }
 
-/** Transposes a single note by N semitones (positive = up, negative = down) */
+/**
+ * Transposes a single note by N semitones (positive = up, negative = down).
+ * Without an explicit style the result keeps the accidental the input was written with.
+ */
 export function transposeNote(note: string, semitones: number, style?: NoteStyle): string {
-  const resolvedStyle: NoteStyle = style ?? (NOTES_FLAT.includes(note.trim() as typeof NOTES_FLAT[number]) ? 'flat' : 'sharp')
-  const idx = noteIndex(note)
-  return noteFromIndex(idx + semitones, resolvedStyle)
+  const resolvedStyle: NoteStyle = style ?? accidentalOf(note) ?? 'sharp'
+  return noteFromIndex(noteIndex(note) + semitones, resolvedStyle)
 }
 
 /** Returns the 12 notes in circle-of-fifths order */
